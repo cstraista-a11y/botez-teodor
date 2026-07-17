@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Botezul lui Teodor — Trimite poze & video</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&family=Quicksand:wght@500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #efece3;
+    --paper-2: #e6e2d6;
+    --ink: #2f6b8f;
+    --ink-dim: #6c8ba0;
+    --pink: #e2609c;
+    --pink-deep: #c94682;
+    --silver: #c7cace;
+    --silver-dark: #8a8f96;
+    --gold: #f0a93f;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0; padding: 0; min-height: 100%;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Quicksand', sans-serif;
+  }
+  .script { font-family: 'Caveat', cursive; }
+  .balloon { font-family: 'Fraunces', serif; font-weight: 900; }
+
+  body {
+    background-image:
+      radial-gradient(circle at 15% 8%, rgba(0,0,0,0.03), transparent 6%),
+      radial-gradient(circle at 82% 4%, rgba(0,0,0,0.03), transparent 6%);
+  }
+
+  .page {
+    position: relative;
+    max-width: 480px; margin: 0 auto;
+    min-height: 100dvh;
+    padding: 0 20px calc(env(safe-area-inset-bottom, 20px) + 28px);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ---------------- disco balls ---------------- */
+  .discoball {
+    position: absolute;
+    border-radius: 50%;
+    background-image:
+      repeating-linear-gradient(0deg, rgba(0,0,0,0.16) 0 2px, transparent 2px 11px),
+      repeating-linear-gradient(90deg, rgba(0,0,0,0.16) 0 2px, transparent 2px 11px),
+      radial-gradient(circle at 34% 28%, #ffffff, #d7dade 38%, #a7abb1 70%, #82868c 100%);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.12);
+    z-index: 1;
+  }
+  .db1 { width: 130px; height: 130px; top: -55px; left: -35px; }
+  .db2 { width: 90px; height: 90px; top: -20px; left: 68px; }
+  .db3 { width: 150px; height: 150px; top: -70px; right: -55px; }
+  .db4 { width: 76px; height: 76px; top: 6px; right: 44px; }
+
+  /* ---------------- header ---------------- */
+  .header { padding-top: 108px; text-align: center; position: relative; z-index: 2; }
+  .eyebrow.script {
+    font-size: 22px; color: var(--ink-dim); transform: rotate(-2deg);
+    display: inline-block; margin-bottom: 2px;
+  }
+  .title.balloon {
+    font-size: 40px; line-height: 0.95; margin: 0;
+    background: linear-gradient(180deg, #f0a0c4, var(--pink) 55%, var(--pink-deep));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 3px 0 rgba(0,0,0,0.1));
+    letter-spacing: 0.01em;
+  }
+  .subline {
+    margin-top: 10px; font-size: 14.5px; color: var(--ink-dim);
+    line-height: 1.5; padding: 0 8px;
+  }
+  .subline b { color: var(--ink); font-weight: 700; }
+
+  .event-chip {
+    margin: 14px auto 0; display: inline-flex; gap: 8px; align-items: center;
+    background: #fff; border: 1px solid #dcd6c6; border-radius: 999px;
+    padding: 6px 14px; font-size: 12.5px; color: var(--ink-dim);
+  }
+
+  /* ---------------- stage ---------------- */
+  .stage { flex: 1; display: flex; flex-direction: column; gap: 22px; margin-top: 28px; position: relative; z-index: 2; }
+
+  .pick-btn {
+    appearance: none; border: none; cursor: pointer;
+    align-self: center; width: 100%; max-width: 340px;
+    padding: 22px 20px; border-radius: 22px;
+    background: linear-gradient(180deg, #fff, #fbf4f7);
+    border: 2px solid var(--pink);
+    color: var(--pink-deep);
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    box-shadow: 0 10px 26px rgba(226,96,156,0.22);
+    transition: transform .15s ease;
+  }
+  .pick-btn:active { transform: scale(0.97); }
+  .pick-btn .icon { font-size: 34px; }
+  .pick-btn .label.balloon { font-size: 17px; font-weight: 700; }
+  .pick-btn .sub { font-size: 12.5px; color: var(--ink-dim); }
+
+  #fileInput { display: none; }
+
+  .reel {
+    display: flex; gap: 8px; overflow-x: auto; padding: 4px 2px 6px;
+    scrollbar-width: none;
+  }
+  .reel::-webkit-scrollbar { display: none; }
+  .frame {
+    position: relative; flex: 0 0 auto; width: 72px; height: 72px;
+    border-radius: 14px; background: var(--paper-2);
+    border: 2px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    overflow: hidden; display: flex; align-items: center; justify-content: center;
+  }
+  .frame img { width: 100%; height: 100%; object-fit: cover; }
+  .frame .vid-badge {
+    position: absolute; bottom: 3px; right: 3px; font-size: 8.5px;
+    background: var(--pink-deep); color: #fff; padding: 1px 5px; border-radius: 6px;
+    font-weight: 700;
+  }
+  .frame .clip-icon { font-size: 22px; }
+
+  .count-line { text-align: center; font-size: 13px; color: var(--ink-dim); }
+  .count-line b { color: var(--pink-deep); }
+
+  .send-btn {
+    appearance: none; border: none; cursor: pointer;
+    align-self: center; width: 100%; max-width: 340px;
+    padding: 18px; border-radius: 18px;
+    background: var(--pink-deep); color: #fff;
+    font-family: 'Fraunces', serif; font-weight: 700; font-size: 16px;
+    box-shadow: 0 10px 24px rgba(201,70,130,0.3);
+    transition: transform .15s ease, opacity .15s ease;
+  }
+  .send-btn:active { transform: scale(0.97); }
+  .send-btn:disabled { opacity: 0.5; }
+
+  .hidden { display: none !important; }
+
+  .tracking { width: 100%; max-width: 340px; align-self: center; }
+  .tracking-bar { height: 8px; border-radius: 6px; background: var(--paper-2); overflow: hidden; }
+  .tracking-fill {
+    height: 100%; width: 0%;
+    background: linear-gradient(90deg, var(--gold), var(--pink));
+    transition: width .25s ease;
+  }
+  .tracking-label { margin-top: 8px; text-align: center; font-size: 12.5px; color: var(--ink-dim); }
+
+  .error-note {
+    text-align: center; font-size: 12.5px; color: var(--pink-deep);
+    max-width: 320px; align-self: center;
+  }
+
+  .footer-note {
+    text-align: center; font-size: 12px; color: var(--ink-dim);
+    margin-top: auto; padding-top: 26px; position: relative; z-index: 2;
+  }
+
+  /* ---------------- thank you ---------------- */
+  .thanks {
+    position: fixed; inset: 0; z-index: 50;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: var(--paper); text-align: center; padding: 32px;
+    opacity: 0; pointer-events: none; transition: opacity .4s ease;
+  }
+  .thanks.show { opacity: 1; pointer-events: auto; }
+  .thanks .spark { font-size: 40px; }
+  .thanks h2.balloon {
+    font-size: 34px; margin: 8px 0 10px;
+    background: linear-gradient(180deg, #f0a0c4, var(--pink) 55%, var(--pink-deep));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .thanks p { color: var(--ink-dim); font-size: 15px; max-width: 300px; line-height: 1.6; }
+  .thanks .sign.script { font-size: 22px; color: var(--ink); margin-top: 14px; display: block; }
+  .thanks .again {
+    margin-top: 26px; background: #fff; border: 1px solid #dcd6c6;
+    color: var(--ink-dim); padding: 10px 18px; border-radius: 999px; font-size: 13px; cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+  <div class="page">
+
+    <div class="discoball db1"></div>
+    <div class="discoball db2"></div>
+    <div class="discoball db3"></div>
+    <div class="discoball db4"></div>
+
+    <div class="header">
+      <span class="eyebrow script">bine ai venit la</span>
+      <h1 class="title balloon" id="eventName">BOTEZUL<br>LUI TEODOR</h1>
+      <p class="subline">Ai poze sau video de azi? Trimite-le aici — se adună<br><b>toate</b> într-o arhivă comună, pentru Teodor.</p>
+      <div class="event-chip" id="eventChip">📍 Băcioi · 18.07.2026</div>
+    </div>
+
+    <div class="stage" id="stage">
+
+      <button class="pick-btn" id="pickBtn">
+        <span class="icon">🪩</span>
+        <span class="label balloon">ALEGE POZE / VIDEO</span>
+        <span class="sub">din galeria telefonului</span>
+      </button>
+      <input type="file" id="fileInput" accept="image/*,video/*" multiple>
+
+      <div id="reelWrap" class="hidden">
+        <div class="reel" id="reel"></div>
+        <div class="count-line" id="countLine"></div>
+      </div>
+
+      <button class="send-btn hidden balloon" id="sendBtn">TRIMITE ÎN ARHIVĂ</button>
+
+      <div class="tracking hidden" id="tracking">
+        <div class="tracking-bar"><div class="tracking-fill" id="trackingFill"></div></div>
+        <div class="tracking-label" id="trackingLabel">se trimite... 0%</div>
+      </div>
+
+      <div class="error-note hidden" id="errorNote"></div>
+
+    </div>
+
+    <div class="footer-note script">cu drag, familia Straistă 🎈</div>
+  </div>
+
+  <div class="thanks" id="thanks">
+    <div class="spark">🎉</div>
+    <h2 class="balloon">MULȚUMIM!</h2>
+    <p>Pozele și video-urile tale au ajuns în arhiva zilei. Teodor o să le vadă cândva — și probabil o să râdă de hăinuța lui.</p>
+    <span class="sign script">Cu drag, Teodor (și părinții lui) ♥</span>
+    <button class="again" id="againBtn">Trimite alte fișiere</button>
+  </div>
+
+<script>
+  /* ============================================================
+     CONFIG — editează aici pentru fiecare eveniment
+     ============================================================ */
+  const EVENT_NAME_HTML = "BOTEZUL<br>LUI TEODOR";
+  const EVENT_CHIP = "📍 Băcioi · 18.07.2026";
+  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyM9BIEylhz0CAf3NfPBf24OP5eCjV9ZLQekxg5e3qfs8KoHal6mIEVBhOFx-pwsA0/exec";
+  const MAX_FILE_MB = 60; // fișiere mai mari de atât sunt refuzate (limită Apps Script)
+
+  document.getElementById('eventName').innerHTML = EVENT_NAME_HTML;
+  document.getElementById('eventChip').textContent = EVENT_CHIP;
+
+  const pickBtn = document.getElementById('pickBtn');
+  const fileInput = document.getElementById('fileInput');
+  const reelWrap = document.getElementById('reelWrap');
+  const reel = document.getElementById('reel');
+  const countLine = document.getElementById('countLine');
+  const sendBtn = document.getElementById('sendBtn');
+  const tracking = document.getElementById('tracking');
+  const trackingFill = document.getElementById('trackingFill');
+  const trackingLabel = document.getElementById('trackingLabel');
+  const errorNote = document.getElementById('errorNote');
+  const thanks = document.getElementById('thanks');
+  const againBtn = document.getElementById('againBtn');
+
+  let selectedFiles = [];
+
+  pickBtn.addEventListener('click', () => fileInput.click());
+
+  fileInput.addEventListener('change', () => {
+    const incoming = Array.from(fileInput.files);
+    errorNote.classList.add('hidden');
+
+    const tooBig = incoming.filter(f => f.size > MAX_FILE_MB * 1024 * 1024);
+    const ok = incoming.filter(f => f.size <= MAX_FILE_MB * 1024 * 1024);
+
+    if (tooBig.length) {
+      errorNote.textContent = `${tooBig.length} fișier(e) au fost ignorate — trec de limita de ${MAX_FILE_MB}MB.`;
+      errorNote.classList.remove('hidden');
+    }
+
+    selectedFiles = selectedFiles.concat(ok);
+    renderReel();
+  });
+
+  function renderReel() {
+    reel.innerHTML = '';
+    selectedFiles.forEach((file) => {
+      const frame = document.createElement('div');
+      frame.className = 'frame';
+      if (file.type.startsWith('image/')) {
+        const img = document.createElement('img');
+        img.src = URL.createObjectURL(file);
+        frame.appendChild(img);
+      } else {
+        const span = document.createElement('span');
+        span.className = 'clip-icon';
+        span.textContent = '🎬';
+        frame.appendChild(span);
+        const badge = document.createElement('span');
+        badge.className = 'vid-badge';
+        badge.textContent = 'VIDEO';
+        frame.appendChild(badge);
+      }
+      reel.appendChild(frame);
+    });
+
+    if (selectedFiles.length) {
+      reelWrap.classList.remove('hidden');
+      sendBtn.classList.remove('hidden');
+      countLine.innerHTML = `<b>${selectedFiles.length}</b> fișier(e) selectate`;
+    } else {
+      reelWrap.classList.add('hidden');
+      sendBtn.classList.add('hidden');
+    }
+  }
+
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result.split(',')[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  sendBtn.addEventListener('click', async () => {
+    if (!selectedFiles.length) return;
+    if (APPS_SCRIPT_URL.includes('PUNE_AICI')) {
+      errorNote.textContent = 'Pagina nu e configurată încă (lipsește URL-ul serverului). Anunță organizatorul.';
+      errorNote.classList.remove('hidden');
+      return;
+    }
+
+    sendBtn.disabled = true;
+    sendBtn.classList.add('hidden');
+    tracking.classList.remove('hidden');
+    trackingFill.style.width = '5%';
+    trackingLabel.textContent = 'se pregătesc fișierele...';
+
+    try {
+      const payloadFiles = [];
+      for (let i = 0; i < selectedFiles.length; i++) {
+        const f = selectedFiles[i];
+        const b64 = await fileToBase64(f);
+        payloadFiles.push({ name: f.name, mimeType: f.type || 'application/octet-stream', data: b64 });
+        const pct = Math.round(((i + 1) / selectedFiles.length) * 70) + 5;
+        trackingFill.style.width = pct + '%';
+        trackingLabel.textContent = `se pregătesc fișierele... ${i + 1}/${selectedFiles.length}`;
+      }
+
+      trackingLabel.textContent = 'se trimit în arhivă...';
+      trackingFill.style.width = '90%';
+
+      // Apps Script nu trimite headerele CORS pe care browserul le cere ca
+      // să "citească" răspunsul, așa că folosim no-cors: cererea tot ajunge
+      // și fișierele tot se salvează pe server, doar că nu mai putem citi
+      // confirmarea JSON înapoi. Dacă fetch-ul nu aruncă eroare de rețea,
+      // considerăm trimiterea reușită.
+      await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ files: payloadFiles })
+      });
+
+      trackingFill.style.width = '100%';
+      trackingLabel.textContent = 'gata!';
+      setTimeout(showThanks, 400);
+
+    } catch (err) {
+      tracking.classList.add('hidden');
+      sendBtn.disabled = false;
+      sendBtn.classList.remove('hidden');
+      errorNote.textContent = 'Nu am putut trimite fișierele. Verifică internetul și încearcă din nou.';
+      errorNote.classList.remove('hidden');
+      console.error(err);
+    }
+  });
+
+  function showThanks() {
+    thanks.classList.add('show');
+  }
+
+  againBtn.addEventListener('click', () => {
+    selectedFiles = [];
+    fileInput.value = '';
+    renderReel();
+    tracking.classList.add('hidden');
+    trackingFill.style.width = '0%';
+    sendBtn.disabled = false;
+    thanks.classList.remove('show');
+  });
+</script>
+</body>
+</html>
